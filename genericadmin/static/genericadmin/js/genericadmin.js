@@ -112,7 +112,7 @@
                 link = '<a class="related-lookup" id="' + id + '" href="' + url + '">';
 
             link = link + '<img src="' + this.admin_media_url.replace(/\/?$/, '/') + 'img/selector-search.gif" style="cursor: pointer; margin-left: 5px; margin-right: 10px;" width="16" height="16" alt="Lookup"></a>';
-            link = link + '<strong id="lookup_text_'+ this.getFkId() +'" margin-left: 5px"><a target="_new" href="#"></a><span></span></strong>';
+            link = link + '<strong id="lookup_text_'+ this.getFkId() +'" margin-left: 5px"><span></span><a target="_new" class="edit-link" href="#" style="display:inline-block;margin-left:10px;"></a><a href="#" target="_new" class="view-link" style="display:inline-block;margin-left:10px;"></a></strong>';
 
             // insert link html after input element
             this.object_input.after(link);
@@ -177,9 +177,20 @@
                     success: function(item) {
                         if (item && item.content_type_text && item.object_text) {
                             var url = that.getLookupUrl(that.cID, false);
-                            $('#lookup_text_' + that.getFkId() + ' a')
-                                .text(item.content_type_text + ': ' + item.object_text)
-                                .attr('href', url + item.object_id);
+
+                            // object description
+                            $('#lookup_text_' + that.getFkId() + ' span')
+                                .text(item.content_type_text + ': ' + item.object_text);
+
+                            // Link to edit object
+                            $('#lookup_text_' + that.getFkId() + ' .edit-link')
+                                .text('Edit').attr('href', url + item.object_id);
+
+                            // Link to view object
+                            if (item.absolute_url) {
+                                $('#lookup_text_' + that.getFkId() + ' .view-link')
+                                    .text('View').attr('href', item.absolute_url);
+                            }
 
                             // run a callback to do other stuff like prepopulating url fields
                             // can't be done with normal django admin prepopulate
@@ -187,7 +198,6 @@
                                 that.updateObjectDataCallback(item);
                             }
                         }
-                        $('#lookup_text_' + that.getFkId() + ' span').text('');
                     },
                     error: function(xhr, status, error) {
                         $('#lookup_text_' + that.getFkId() + ' span').text('')

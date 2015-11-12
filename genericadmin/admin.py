@@ -18,9 +18,10 @@ try:
     from django.contrib.admin.views.main import IS_POPUP_VAR
 except ImportError:
     from django.contrib.admin.options import IS_POPUP_VAR
-from  django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 
 JS_PATH = getattr(settings, 'GENERICADMIN_JS', 'genericadmin/js/')
+
 
 class BaseGenericModelAdmin(object):
     class Media:
@@ -138,6 +139,11 @@ class BaseGenericModelAdmin(object):
             try:
                 obj = content_type.get_object_for_this_type(pk=object_id)
                 obj_dict["object_text"] = capfirst(force_text(obj))
+                try:
+                    absolute_url = obj.get_absolute_url()
+                except (AttributeError,):
+                    absolute_url = ''
+                obj_dict["absolute_url"] = absolute_url
             except ObjectDoesNotExist:
                 raise Http404
 
@@ -145,7 +151,6 @@ class BaseGenericModelAdmin(object):
         else:
             resp = ''
         return HttpResponse(resp, content_type='application/json')
-
 
 
 class GenericAdminModelAdmin(BaseGenericModelAdmin, admin.ModelAdmin):
